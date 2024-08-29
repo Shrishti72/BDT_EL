@@ -1,0 +1,7 @@
+D)
+high_rating = FILTER data BY ratings>3;
+movie_count = FOREACH (GROUP high_rating ALL) GENERATE COUNT(high_rating) AS numHIGHRATING;
+
+E)
+ratings_stats = FOREACH (GROUP data ALL) GENERATE MAX(data.ratings) AS maxRating,MIN(data.ratings) AS minRating, 
+AVG(data.ratings) AS avgRating;
