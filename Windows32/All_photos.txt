@@ -1,0 +1,81 @@
+Program-5
+
+1.  SELECT   Movie_Id,User_Id,   Activity_State AS activity,      CASE          WHEN RECOMMENDED = 'Y' THEN 1          WHEN RECOMMENDED = 'N' THEN 0          ELSE NUL
+L      END AS RECOMMENDED_INT,      Genre_Id  FROM      movie_log  WHERE      Activity_State IN (4,5,2,1)      AND Genre_Id IS NOT NULL  LIMIT 25;
+
+2. WITH MostRecentRatings AS (     SELECT          User_Id,          Movie_Id,          Title AS Movie_Title,          Ratings,          Recommended,          ROW_NU
+MBER() OVER (PARTITION BY Movie_Id ORDER BY User_Id) AS rn      FROM movie_log      WHERE Ratings IS NOT NULL )  SELECT      User_Id,      Movie_Id,      Movie_Title,  
+    CASE          WHEN Recommended = 'Y' THEN 1          WHEN Recommended = 'N' THEN 0          ELSE NULL      END AS Recommended_Int,      Ratings AS most_recent_ratin
+g  FROM MostRecentRatings  WHERE rn = 1  LIMIT 5;
+
+
+Program -4
+
+1.  data = LOAD 'Pgms-124.csv' USING PigStorage(',')
+       AS (CityName:chararray, Location:chararray, Year:int, Temperature:float, State:chararray, GasPresent:chararray, QuantityofGas:float);
+grouped_by_year = GROUP data BY Year;
+year_bag = FOREACH grouped_by_year GENERATE group AS Year, TOBAG(data) AS DataBag;
+DUMP year_bag;
+
+2.data = LOAD 'Pgms-124.csv' USING PigStorage(',')
+       AS (CityName:chararray, Location:chararray, Year:int, Temperature:float, State:chararray, GasPresent:chararray, QuantityofGas:float);
+
+
+filtered_data = FILTER data BY Temperature IS NOT NULL;
+
+
+max_temperature = FOREACH (GROUP filtered_data ALL) GENERATE MAX(filtered_data.Temperature) AS MaxTemp;
+
+
+DUMP max_temperature;
+
+3.data = LOAD 'prg124.csv' USING PigStorage(',')
+       AS (CityName:chararray, Location:chararray, Year:int, Temperature:float, State:chararray, GasPresent:chararray, QuantityofGas:float);
+
+filtered_data = FILTER data BY (Year >= 2010 AND Year <= 2012);
+
+valid_temperature_data = FILTER filtered_data BY Temperature IS NOT NULL;
+
+grouped_by_state = GROUP valid_temperature_data BY State;
+
+avg_temperature = FOREACH grouped_by_state GENERATE group AS State, AVG(valid_temperature_data.Temperature) AS AvgTemp;
+
+STORE avg_temperature INTO '/outputp4c' USING PigStorage(',');
+
+
+program 3.....
+
+1. LOAD 'Pgm-3.csv' USING PigStorage(',') AS (movieId:int, title:chararray, userId:int, rating:float, genreId:int); grouped_ratings = GROUP ratings BY mov
+ieId; movie_rating_count = FOREACH grouped_ratings GENERATE group AS movieId, COUNT(ratings) AS numRatings; DUMP movie_rating_count;
+
+2.                                                                                                                                                                
+grunt>  ratings = LOAD 'Pgm-3.csv' USING PigStorage(',') AS (movieId:int, title:chararray, userId:int, rating:float, genreId:int);  grouped_by_movie = GROUP ratings BY 
+movieId; user_rating_count_by_movie = FOREACH grouped_by_movie {     title = FOREACH ratings GENERATE title;     users = ratings.userId;     GENERATE group AS movieId, 
+title.title AS movieTitle, COUNT(users) AS numRatings; };   DUMP user_rating_count_by_movie; 
+
+
+3. LOAD 'Pgm-3.csv' USING PigStorage(',') AS (movieId:int, title:chararray, userId:int, rating:float, genreId:int);user_ids = FOREACH ratings GENERATE use
+rId; unique_users = DISTINCT user_ids;  DUMP unique_users;
+
+4. ratings = LOAD 'Pgm-3.csv' USING PigStorage(',') AS (movieId:int, title:chararray, userId:int, rating:float, genreId:int); high_ratings = FILTER ratings BY ratin
+g > 3; grouped_high_ratings = GROUP high_ratings BY movieId; high_rating_count = FOREACH grouped_high_ratings GENERATE group AS movieId, COUNT(high_ratings) AS numHighR
+atings; high_rating_movie_count = FILTER high_rating_count BY numHighRatings > 0; DUMP high_rating_movie_count; 
+
+5. ratings = LOAD 'Pgm-3.csv' USING PigStorage(',') AS (movieId:int, title:chararray, userId:int, rating:float, genreId:int); grouped_ratings = GROUP ratings BY mov
+ieId; movie_stats = FOREACH grouped_ratings GENERATE group AS movieId,     MAX(ratings.rating) AS maxRating,     MIN(ratings.rating) AS minRating,     AVG(ratings.ratin
+g) AS avgRating; DUMP movie_stats
+
+
+
+Commmads to run Pgm 1 and 2 
+mkdir folder
+javac -classpath $(hadoop classpath) -d folder RecordCountMapper.java RecordCountReducer.java RecordCount.java
+jar -cvf recordcount.jar -C folder/ .
+hdfs dfs -mkdir /input
+hdfs dfs -put dataset124.csv /input/data.csv
+hadoop jar recordcount.jar Package.RecordCount /input /output
+hdfs dfs -ls /output
+hdfs dfs -cat /output/part-r-00000
+
+TO kill 
+hadoop job -kill <JobID>
