@@ -1,0 +1,9 @@
+Program-5
+
+1.  SELECT   Movie_Id,User_Id,   Activity_State AS activity,      CASE          WHEN RECOMMENDED = 'Y' THEN 1          WHEN RECOMMENDED = 'N' THEN 0          ELSE NUL
+L      END AS RECOMMENDED_INT,      Genre_Id  FROM      movie_log  WHERE      Activity_State IN (4,5,2,1)      AND Genre_Id IS NOT NULL  LIMIT 25;
+
+2. WITH MostRecentRatings AS (     SELECT          User_Id,          Movie_Id,          Title AS Movie_Title,          Ratings,          Recommended,          ROW_NU
+MBER() OVER (PARTITION BY Movie_Id ORDER BY User_Id) AS rn      FROM movie_log      WHERE Ratings IS NOT NULL )  SELECT      User_Id,      Movie_Id,      Movie_Title,  
+    CASE          WHEN Recommended = 'Y' THEN 1          WHEN Recommended = 'N' THEN 0          ELSE NULL      END AS Recommended_Int,      Ratings AS most_recent_ratin
+g  FROM MostRecentRatings  WHERE rn = 1  LIMIT 5;
