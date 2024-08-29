@@ -1,0 +1,21 @@
+program 3.....
+
+1. LOAD 'Pgm-3.csv' USING PigStorage(',') AS (movieId:int, title:chararray, userId:int, rating:float, genreId:int); grouped_ratings = GROUP ratings BY mov
+ieId; movie_rating_count = FOREACH grouped_ratings GENERATE group AS movieId, COUNT(ratings) AS numRatings; DUMP movie_rating_count;
+
+2.                                                                                                                                                                
+grunt>  ratings = LOAD 'Pgm-3.csv' USING PigStorage(',') AS (movieId:int, title:chararray, userId:int, rating:float, genreId:int);  grouped_by_movie = GROUP ratings BY 
+movieId; user_rating_count_by_movie = FOREACH grouped_by_movie {     title = FOREACH ratings GENERATE title;     users = ratings.userId;     GENERATE group AS movieId, 
+title.title AS movieTitle, COUNT(users) AS numRatings; };   DUMP user_rating_count_by_movie; 
+
+
+3. LOAD 'Pgm-3.csv' USING PigStorage(',') AS (movieId:int, title:chararray, userId:int, rating:float, genreId:int);user_ids = FOREACH ratings GENERATE use
+rId; unique_users = DISTINCT user_ids;  DUMP unique_users;
+
+4. ratings = LOAD 'Pgm-3.csv' USING PigStorage(',') AS (movieId:int, title:chararray, userId:int, rating:float, genreId:int); high_ratings = FILTER ratings BY ratin
+g > 3; grouped_high_ratings = GROUP high_ratings BY movieId; high_rating_count = FOREACH grouped_high_ratings GENERATE group AS movieId, COUNT(high_ratings) AS numHighR
+atings; high_rating_movie_count = FILTER high_rating_count BY numHighRatings > 0; DUMP high_rating_movie_count; 
+
+5. ratings = LOAD 'Pgm-3.csv' USING PigStorage(',') AS (movieId:int, title:chararray, userId:int, rating:float, genreId:int); grouped_ratings = GROUP ratings BY mov
+ieId; movie_stats = FOREACH grouped_ratings GENERATE group AS movieId,     MAX(ratings.rating) AS maxRating,     MIN(ratings.rating) AS minRating,     AVG(ratings.ratin
+g) AS avgRating; DUMP movie_stats
